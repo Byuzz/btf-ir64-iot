@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTech - Transceiver Performance</title>
+    <link rel="stylesheet" href="css\style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🌤️ WeatherTech</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Overview</a>
+            <a href="sensors.html" class="nav-link">📊 Sensor Data</a>
+            <a href="gps.html" class="nav-link">🗺️ GPS</a>
+            <a href="transceiver.html" class="nav-link active">⚡ Transceiver</a>
+            <a href="gateway.html" class="nav-link">🖥️ Gateway</a>
+            <a href="history.html" class="nav-link">📈 History</a>
+            <a href="team.html" class="nav-link">👥 Team</a>
+        </div>
+    </nav>
+
+    <div class="container">
+    <header class="page-header">
+        <h1>⚡ Transceiver Monitor</h1>
+        <div class="last-update" id="last-update">Menunggu data...</div>
+    </header>
+
+    <div class="content-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <div class="sensor-card" style="text-align: center;">
+            <h3>🏥 System Health</h3>
+            <div style="position: relative; height: 150px; width: 150px; margin: 0 auto;">
+                <canvas id="health-chart"></canvas>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: bold; color: #2c3e50;">
+                    <span id="health-score">100</span>%
+                </div>
+            </div>
+            <div style="margin-top: 10px; color: #666;">Status: <span id="health-status" style="color: #0f5132; font-weight: bold;">Excellent</span></div>
+        </div>
+
+        <div class="sensor-card">
+            <h3>⚙️ Resource Usage</h3>
+            <div style="margin-top: 20px;">
+                
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>CPU Load</span>
+                        <span id="cpu-text">--%</span>
+                    </div>
+                    <div style="height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden;">
+                        <div id="cpu-bar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.5s;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>RAM Usage</span>
+                        <span id="ram-text">--%</span>
+                    </div>
+                    <div style="height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden;">
+                        <div id="ram-bar" style="width: 0%; height: 100%; background: #2196F3; transition: width 0.5s;"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 0.85rem; color: #666;">
+                    <div>Freq: <strong id="cpu-freq">240</strong> MHz</div>
+                    <div>Free RAM: <strong id="ram-free">--</strong> KB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sensor-card">
+            <h3>📡 LoRa Connectivity</h3>
+            <div style="display: flex; align-items: center; justify-content: center; height: 100px;">
+                <div style="font-size: 4rem; color: #4CAF50;" id="signal-icon">📶</div>
+            </div>
+            <div style="text-align: center; margin-top: -10px;">
+                <div style="font-size: 1.2rem; font-weight: bold;" id="signal-text">Strong Signal</div>
+                <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                    Last Packet: <span id="last-packet">Just now</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sensor-card" style="margin-top: 20px;">
+        <div class="sensor-header">
+            <h3>📈 CPU & RAM History (Real-time)</h3>
+        </div>
+        <div class="chart-container" style="height: 300px; width: 100%;">
+            <canvas id="transceiver-history-chart"></canvas>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+        <div class="sensor-card" style="padding: 15px; text-align: center;">
+            <div style="color: #666; font-size: 0.9rem;">Uptime</div>
+            <div id="uptime-val" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px;">--</div>
+        </div>
+        <div class="sensor-card" style="padding: 15px; text-align: center;">
+            <div style="color: #666; font-size: 0.9rem;">Packets Sent</div>
+            <div id="packet-count" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px;">--</div>
+        </div>
+        <div class="sensor-card" style="padding: 15px; text-align: center;">
+            <div style="color: #666; font-size: 0.9rem;">Last Reset</div>
+            <div id="reset-reason" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px;">Power On</div>
+        </div>
+        <div class="sensor-card" style="padding: 15px; text-align: center;">
+            <div style="color: #666; font-size: 0.9rem;">Temperature (CPU)</div>
+            <div id="cpu-temp" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px;">42°C</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/transceiver.js"></script>
+</body>
+</html>

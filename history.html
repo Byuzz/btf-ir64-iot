@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTech - Historical Data</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🌤️ WeatherTech</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Overview</a>
+            <a href="sensors.html" class="nav-link">📊 Sensor Data</a>
+            <a href="gps.html" class="nav-link">🗺️ GPS</a>
+            <a href="transceiver.html" class="nav-link">⚡ Transceiver</a>
+            <a href="gateway.html" class="nav-link">🖥️ Gateway</a>
+            <a href="history.html" class="nav-link active">📈 History</a>
+            <a href="team.html" class="nav-link">👥 Team</a>
+        </div>
+    </nav>
+
+    <div class="container">
+    <header class="page-header">
+        <h1>📈 Historical Data & Analytics</h1>
+        <div class="time-range-selector">
+            <button id="export-data" class="btn-primary" style="background: #198754;">
+                📥 Export to Excel/CSV
+            </button>
+        </div>
+    </header>
+
+    <div class="stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="stat-card sensor-card">
+            <div style="color: #666; font-size: 0.9rem;">Total Data Points</div>
+            <div class="stat-value" id="total-data-points" style="font-size: 1.8rem; font-weight: bold;">--</div>
+        </div>
+        <div class="stat-card sensor-card">
+            <div style="color: #666; font-size: 0.9rem;">Avg Temperature</div>
+            <div class="stat-value" id="avg-temp" style="font-size: 1.8rem; font-weight: bold; color: #dc3545;">--°C</div>
+        </div>
+        <div class="stat-card sensor-card">
+            <div style="color: #666; font-size: 0.9rem;">Avg Humidity</div>
+            <div class="stat-value" id="avg-hum" style="font-size: 1.8rem; font-weight: bold; color: #0d6efd;">--%</div>
+        </div>
+        <div class="stat-card sensor-card">
+            <div style="color: #666; font-size: 0.9rem;">Avg Air Quality</div>
+            <div class="stat-value" id="avg-air" style="font-size: 1.8rem; font-weight: bold; color: #198754;">--%</div>
+        </div>
+    </div>
+
+    <div class="sensor-card" style="margin-bottom: 20px;">
+        <div class="sensor-header" style="flex-wrap: wrap; gap: 10px;">
+            <h3>📊 Trend Analysis</h3>
+            
+            <div class="chart-filter" style="display: flex; gap: 10px; align-items: center;">
+                <input type="date" id="start-date" class="form-control" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+                <span style="color:#666">-</span>
+                <input type="date" id="end-date" class="form-control" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+                
+                <button id="filter-date-btn" class="btn-primary" style="padding: 5px 15px; font-size: 0.9rem;">Filter</button>
+                <button id="reset-date-btn" class="btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">Reset</button>
+            </div>
+        </div>
+        
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+            <canvas id="sensor-trends-chart"></canvas>
+        </div>
+    </div>
+
+    <div class="sensor-card">
+        <div class="sensor-header" style="margin-bottom: 15px;">
+            <h3>📋 Detailed Data Logs</h3>
+            
+            <input type="text" id="search-box" placeholder="🔍 Cari tanggal/jam..." 
+                   style="padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+            <table id="history-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #eee;">
+                        <th style="padding: 12px; text-align: left;">Timestamp</th>
+                        <th style="padding: 12px; text-align: left;">RTC Time</th>
+                        <th style="padding: 12px; text-align: left;">Temp (°C)</th>
+                        <th style="padding: 12px; text-align: left;">Hum (%)</th>
+                        <th style="padding: 12px; text-align: left;">Press (hPa)</th>
+                        <th style="padding: 12px; text-align: left;">Lux</th>
+                        <th style="padding: 12px; text-align: left;">Air (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <button id="prev-btn" class="btn-secondary" style="padding: 5px 15px;" disabled>Previous</button>
+            <span id="page-info" style="color: #666;">Page 1 of --</span>
+            <button id="next-btn" class="btn-secondary" style="padding: 5px 15px;">Next</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/history.js"></script>
+</body>
+</html>

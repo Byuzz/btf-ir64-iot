@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTech - System Overview</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🌤️ WeatherTech</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link active">🏠 Overview</a>
+            <a href="sensors.html" class="nav-link">📊 Sensor Data</a>
+            <a href="gps.html" class="nav-link">🗺️ GPS</a>
+            <a href="transceiver.html" class="nav-link">⚡ Transceiver</a>
+            <a href="gateway.html" class="nav-link">🖥️ Gateway</a>
+            <a href="history.html" class="nav-link">📈 History</a>
+            <a href="team.html" class="nav-link">👥 Team</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>System Overview & Architecture</h1>
+            <div class="last-update" id="last-update">Sistem Monitoring Real-time</div>
+        </header>
+
+        <!-- Project Brief -->
+        <div class="card project-brief">
+            <div class="brief-content">
+                <h3>🌱 Jaringan Sensor Cerdas Mandiri Energi</h3>
+                <p>Solusi IoT inovatif untuk pemantauan iklim mikro dan kualitas udara perkotaan yang mendukung Sustainable Development Goals (SDGs)</p>
+                <a href="team.html" class="btn-primary">📖 Tentang Proyek</a>
+            </div>
+            <div class="brief-sdgs">
+                <div class="sdg-pill">SDG 11</div>
+                <div class="sdg-pill">SDG 7</div>
+                <div class="sdg-pill">SDG 9</div>
+                <div class="sdg-pill">SDG 3</div>
+            </div>
+        </div>
+
+        <!-- System Architecture -->
+        <div class="architecture-section">
+            <div class="card architecture-card">
+                <h3>🔄 System Architecture Flow</h3>
+                <div class="architecture-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">📡</div>
+                        <div class="step-content">
+                            <h4>Sensor Nodes (Transceiver)</h4>
+                            <p>ESP32 dengan berbagai sensor lingkungan:</p>
+                            <ul>
+                                <li><strong>BH1750</strong> - Sensor intensitas cahaya (Lux)</li>
+                                <li><strong>BME280</strong> - Sensor suhu, kelembaban, tekanan</li>
+                                <li><strong>MQ-135</strong> - Sensor kualitas udara</li>
+                                <li><strong>GPS Module</strong> - Pelacakan lokasi</li>
+                                <li><strong>LoRa Module</strong> - Komunikasi jarak jauh</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-content">
+                            <h4>LoRa Communication</h4>
+                            <p>Data dikirim via LoRa pada frekuensi 433MHz:</p>
+                            <ul>
+                                <li><strong>Format Data</strong>: JSON terstruktur</li>
+                                <li><strong>Interval</strong>: Setiap 4 detik</li>
+                                <li><strong>Jangkauan</strong>: Hingga beberapa kilometer</li>
+                                <li><strong>Energi</strong>: Efisien untuk battery operation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step">
+                        <div class="step-icon">🖥️</div>
+                        <div class="step-content">
+                            <h4>Gateway System</h4>
+                            <p>ESP32 Gateway menerima dan memproses data:</p>
+                            <ul>
+                                <li><strong>LoRa Receiver</strong> - Menerima data dari nodes</li>
+                                <li><strong>WiFi Connection</strong> - Koneksi internet</li>
+                                <li><strong>Data Processing</strong> - Parsing dan validasi</li>
+                                <li><strong>MQTT Client</strong> - Mengirim ke cloud</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step">
+                        <div class="step-icon">☁️</div>
+                        <div class="step-content">
+                            <h4>HiveMQ Cloud Broker</h4>
+                            <p>MQTT Broker terkelola di cloud:</p>
+                            <ul>
+                                <li><strong>Host</strong>: <span class="mqtt-address">ef0b64d1857f49109acb946f7e9732d8.s1.eu.hivemq.cloud</span></li>
+                                <li><strong>Port</strong>: 8883 (TLS secured)</li>
+                                <li><strong>Topics</strong>: 
+                                    <span class="mqtt-address">/weathertech/sensor_data</span>,
+                                    <span class="mqtt-address">/weathertech/system_data</span>,
+                                    <span class="mqtt-address">/weathertech/gateway_system</span>
+                                </li>
+                                <li><strong>Security</strong>: Authentication dengan username/password</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-content">
+                            <h4>n8n Workflow Automation</h4>
+                            <p>Platform workflow otomatisasi:</p>
+                            <ul>
+                                <li><strong>MQTT Trigger</strong> - Subscribe ke topics</li>
+                                <li><strong>Data Processing</strong> - Filter dan transformasi data</li>
+                                <li><strong>Webhook Endpoints</strong> - API untuk frontend</li>
+                                <li><strong>Database Storage</strong> - Penyimpanan historical data</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-content">
+                            <h4>Web Dashboard (Ini)</h4>
+                            <p>Frontend real-time monitoring:</p>
+                            <ul>
+                                <li><strong>GitHub Pages</strong> - Hosting static website</li>
+                                <li><strong>Real-time Updates</strong> - Auto refresh data</li>
+                                <li><strong>Responsive Design</strong> - Akses dari mobile/desktop</li>
+                                <li><strong>Multiple Views</strong> - Halaman khusus untuk setiap aspek</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Overview -->
+        <div class="content-row">
+            <div class="card">
+                <h3>📊 Data Flow Status</h3>
+                <div class="status-overview">
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">📡</div>
+                        <div class="status-info">
+                            <h4>Sensor Nodes</h4>
+                            <p>Mengumpulkan data lingkungan secara real-time</p>
+                            <div class="status-badge online">Active</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">📶</div>
+                        <div class="status-info">
+                            <h4>LoRa Communication</h4>
+                            <p>Transmisi wireless ke gateway</p>
+                            <div class="status-badge online">Stable</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">🖥️</div>
+                        <div class="status-info">
+                            <h4>Gateway System</h4>
+                            <p>Memproses dan meneruskan data ke cloud</p>
+                            <div class="status-badge online">Running</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">☁️</div>
+                        <div class="status-info">
+                            <h4>HiveMQ Cloud</h4>
+                            <p>MQTT broker untuk message handling</p>
+                            <div class="status-badge online">Connected</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">⚡</div>
+                        <div class="status-info">
+                            <h4>n8n Workflow</h4>
+                            <p>Automation dan data processing</p>
+                            <div class="status-badge online">Processing</div>
+                        </div>
+                    </div>
+
+                    <div class="status-item comprehensive">
+                        <div class="status-icon">🌐</div>
+                        <div class="status-info">
+                            <h4>Web Dashboard</h4>
+                            <p>Real-time monitoring interface</p>
+                            <div class="status-badge online">Online</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Monitoring Pages</h3>
+                <div class="pages-grid">
+                    <a href="sensors.html" class="page-card">
+                        <div class="page-icon">📊</div>
+                        <div class="page-info">
+                            <h4>Sensor Data</h4>
+                            <p>Data real-time dari semua sensor lingkungan</p>
+                        </div>
+                    </a>
+
+                    <a href="gps.html" class="page-card">
+                        <div class="page-icon">🗺️</div>
+                        <div class="page-info">
+                            <h4>GPS Tracking</h4>
+                            <p>Pemantauan lokasi dan mapping</p>
+                        </div>
+                    </a>
+
+                    <a href="transceiver.html" class="page-card">
+                        <div class="page-icon">⚡</div>
+                        <div class="page-info">
+                            <h4>Transceiver Performance</h4>
+                            <p>Status dan performance sensor node</p>
+                        </div>
+                    </a>
+
+                    <a href="gateway.html" class="page-card">
+                        <div class="page-icon">🖥️</div>
+                        <div class="page-info">
+                            <h4>Gateway System</h4>
+                            <p>Monitoring gateway dan konektivitas</p>
+                        </div>
+                    </a>
+
+                    <a href="history.html" class="page-card">
+                        <div class="page-icon">📈</div>
+                        <div class="page-info">
+                            <h4>Historical Data</h4>
+                            <p>Analytics dan data historis</p>
+                        </div>
+                    </a>
+
+                    <a href="team.html" class="page-card">
+                        <div class="page-icon">👥</div>
+                        <div class="page-info">
+                            <h4>Team & Project</h4>
+                            <p>Informasi tim dan detail proyek</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specifications -->
+        <div class="card">
+            <h3>🔧 Technical Specifications</h3>
+            <div class="specs-grid">
+                <div class="spec-category">
+                    <h4>Hardware Components</h4>
+                    <ul>
+                        <li><strong>Microcontroller</strong>: ESP32 Dual-Core 240MHz</li>
+                        <li><strong>Sensors</strong>: BH1750, BME280, MQ-135, GPS NEO-6M</li>
+                        <li><strong>Communication</strong>: LoRa SX1278 (433MHz)</li>
+                        <li><strong>Storage</strong>: AT24C32 EEPROM (32KB)</li>
+                        <li><strong>RTC</strong>: DS3231 Precision Timer</li>
+                    </ul>
+                </div>
+
+                <div class="spec-category">
+                    <h4>Software Stack</h4>
+                    <ul>
+                        <li><strong>Firmware</strong>: Arduino C++ dengan FreeRTOS</li>
+                        <li><strong>Communication</strong>: MQTT over TLS, LoRaWAN</li>
+                        <li><strong>Cloud</strong>: HiveMQ Cloud Broker</li>
+                        <li><strong>Automation</strong>: n8n Workflow Platform</li>
+                        <li><strong>Frontend</strong>: HTML5, CSS3, JavaScript, Chart.js, Leaflet</li>
+                    </ul>
+                </div>
+
+                <div class="spec-category">
+                    <h4>Data Flow</h4>
+                    <ul>
+                        <li><strong>Sampling Rate</strong>: Sensor data setiap 2 detik</li>
+                        <li><strong>Transmission</strong>: LoRa packet setiap 4 detik</li>
+                        <li><strong>MQTT Publishing</strong>: Real-time ke cloud</li>
+                        <li><strong>Web Updates</strong>: Auto-refresh setiap 3-5 detik</li>
+                        <li><strong>Data Format</strong>: JSON structured data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time System Status -->
+        <div class="content-row">
+            <div class="card full-width">
+    <h3>🔄 Real-time System Status</h3>
+    <div class="system-metrics">
+        
+        <div class="metric-item">
+            <span class="metric-label">Last Data Received</span>
+            <span class="metric-value" id="sys-last-update">Waiting...</span>
+        </div>
+
+        <div class="metric-item">
+            <span class="metric-label">System Status</span>
+            <span class="metric-value" id="sys-connection" style="color: orange;">Connecting...</span>
+        </div>
+
+        <div class="metric-item">
+            <span class="metric-label">Gateway Uptime</span>
+            <span class="metric-value" id="sys-uptime">--</span>
+        </div>
+
+        <div class="metric-item">
+            <span class="metric-label">Total Data Recorded</span>
+            <span class="metric-value" id="sys-data-count">--</span>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/overview.js"></script>
+</body>
+</html>

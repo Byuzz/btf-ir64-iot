@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherTech - Sensor Data</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🌤️ WeatherTech</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">🏠 Overview</a>
+            <a href="sensors.html" class="nav-link active">📊 Sensor Data</a>
+            <a href="gps.html" class="nav-link">🗺️ GPS</a>
+            <a href="transceiver.html" class="nav-link">⚡ Transceiver</a>
+            <a href="gateway.html" class="nav-link">🖥️ Gateway</a>
+            <a href="history.html" class="nav-link">📈 History</a>
+            <a href="team.html" class="nav-link">👥 Team</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>Data Sensor Lingkungan</h1>
+            <div class="last-update" id="last-update">Loading...</div>
+        </header>
+
+        <div class="sensor-grid">
+    
+    <div class="sensor-card large">
+        <div class="sensor-header">
+            <h3>💡 Intensitas Cahaya</h3>
+            <div class="sensor-value" id="lux-value">-- lux</div>
+        </div>
+        <div class="sensor-chart" style="height: 120px;">
+            <canvas id="lux-chart"></canvas> </div>
+    </div>
+
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <h3>🌡️ Suhu</h3>
+            <div class="sensor-value" id="temp-value">-- °C</div>
+        </div>
+        <div class="sensor-chart" style="height: 120px;">
+            <canvas id="temp-chart"></canvas> </div>
+        <div class="sensor-range">
+            <span>Min: <span id="temp-min">--</span>°C</span>
+            <span>Max: <span id="temp-max">--</span>°C</span>
+        </div>
+    </div>
+
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <h3>💧 Kelembaban</h3>
+            <div class="sensor-value" id="hum-value">-- %</div>
+        </div>
+        <div class="sensor-chart" style="height: 120px;">
+            <canvas id="hum-chart"></canvas> </div>
+        <div class="sensor-range">
+            <span>Min: <span id="hum-min">--</span>%</span>
+            <span>Max: <span id="hum-max">--</span>%</span>
+        </div>
+    </div>
+</div>
+
+<div class="content-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+    
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <h3>🎯 Tekanan Udara</h3>
+            <div class="sensor-value" id="pres-value">-- hPa</div>
+        </div>
+        <div style="height: 80px; width: 100%; margin-top: 10px;">
+            <canvas id="pres-chart"></canvas> </div>
+    </div>
+
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <h3>🌬️ Kualitas Udara</h3>
+            <div class="sensor-value" id="air-value">-- %</div>
+        </div>
+        <div style="margin: 20px 0;">
+            <div style="height: 15px; background: #e9ecef; border-radius: 10px; overflow: hidden;">
+                <div id="air-progress-bar" style="width: 0%; height: 100%; background: #4CAF50;"></div>
+            </div>
+        </div>
+        <div class="sensor-status" style="text-align: center;">
+            <span id="air-status-badge" class="status-badge">Menganalisa...</span>
+        </div>
+    </div>
+
+    <div class="sensor-card">
+        <div class="sensor-header"><h3>📋 Status Sistem</h3></div>
+        <div style="margin-top: 10px;">
+            <p>RTC: <strong id="rtc-time">--</strong></p>
+            <p>Count: <strong id="eeprom-count">--</strong></p>
+            <p>Update: <strong id="last-update-time">--</strong></p>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 30px; width: 100%; display: block;">
+    <div class="sensor-card" style="width: 100%; padding: 20px; box-sizing: border-box;">
+        <div class="sensor-header">
+            <h3>📈 Trend Real-time (History Lebih Panjang)</h3>
+        </div>
+        
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+            <canvas id="sensor-trend-chart"></canvas>
+        </div>
+    </div>
+</div>
+</div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/sensors.js"></script>
+</body>
+</html>
