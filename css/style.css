@@ -1720,3 +1720,30 @@ tr:hover {
     max-height: 100% !important;
     max-width: 100% !important;
 }
+/* --- GANTI BAGIAN INI SAJA --- */
+
+.nav-brand {
+    background-color: white;     /* Latar belakang putih */
+    padding: 5px 20px;           /* Jarak dalam agar tidak sesak */
+    border-radius: 50px;         /* Membuat bentuk kapsul */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Efek timbul 3D */
+    display: flex;
+    align-items: center;
+    margin-right: auto;          /* Agar posisi tetap rapi */
+}
+
+.nav-brand h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    color: var(--primary);       /* Ubah teks jadi Biru agar terbaca */
+    font-weight: 800;
+    margin: 0;
+}
+
+.brand-logo {
+    height: 35px;                /* Ukuran logo gambar */
+    width: auto;
+    object-fit: contain;
+}

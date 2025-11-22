@@ -1,8 +1,8 @@
 if (typeof CONFIG === 'undefined') console.error("Error: config.js belum dimuat!");
 
 // Variabel Global
-let allData = [];        // Menyimpan semua data dari DB
-let filteredData = [];   // Menyimpan data hasil search tabel
+let allData = [];        
+let filteredData = [];   
 let currentPage = 1;
 const rowsPerPage = 10;
 
@@ -15,8 +15,8 @@ const trendChart = new Chart(ctxTrend, {
     data: {
         labels: [],
         datasets: [
-            { label: 'Temp (°C)', data: [], borderColor: '#dc3545', backgroundColor: 'rgba(220, 53, 69, 0.1)', yAxisID: 'y', tension: 0.4, fill: true, pointRadius: 2 },
-            { label: 'Hum (%)', data: [], borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', yAxisID: 'y1', tension: 0.4, fill: true, pointRadius: 2 }
+            { label: 'Temp (°C)', data: [], borderColor: '#dc3545', backgroundColor: 'rgba(220, 53, 69, 0.1)', yAxisID: 'y', tension: 0.4, fill: true, pointRadius: 3 },
+            { label: 'Hum (%)', data: [], borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', yAxisID: 'y1', tension: 0.4, fill: true, pointRadius: 3 }
         ]
     },
     options: {
@@ -30,10 +30,17 @@ const trendChart = new Chart(ctxTrend, {
 });
 
 // ==========================================
-// 2. LOGIKA FILTER TANGGAL (BARU)
+// 2. LOGIKA FILTER & LIMIT (BARU)
 // ==========================================
 
-// Event Listener Tombol Filter
+// Event Listener: Ganti Limit Data (10, 25, 50, 100)
+document.getElementById('chart-limit').addEventListener('change', () => {
+    // Saat dropdown berubah, update chart menggunakan data yang sedang aktif (filteredData)
+    // Balik urutan dulu karena updateChartData butuh urutan kronologis (Lama -> Baru)
+    updateChartData([...filteredData].reverse());
+});
+
+// Event Listener: Filter Tanggal
 document.getElementById('filter-date-btn').addEventListener('click', () => {
     const startVal = document.getElementById('start-date').value;
     const endVal = document.getElementById('end-date').value;
@@ -44,44 +51,53 @@ document.getElementById('filter-date-btn').addEventListener('click', () => {
     }
 
     const startDate = new Date(startVal);
-    startDate.setHours(0, 0, 0); // Mulai jam 00:00
-
+    startDate.setHours(0, 0, 0);
     const endDate = new Date(endVal);
-    endDate.setHours(23, 59, 59); // Sampai jam 23:59
+    endDate.setHours(23, 59, 59);
 
-    // Lakukan Filtering pada allData
-    const chartFiltered = allData.filter(item => {
+    // Filter allData
+    const result = allData.filter(item => {
         const itemDate = new Date(item.timestamp);
         return itemDate >= startDate && itemDate <= endDate;
     });
 
-    if (chartFiltered.length === 0) {
+    if (result.length === 0) {
         alert("Tidak ada data pada rentang tanggal tersebut.");
         return;
     }
 
-    console.log(`Menampilkan ${chartFiltered.length} data hasil filter tanggal.`);
+    // Simpan hasil filter ke variabel global agar Limit bisa memakainya
+    filteredData = result;
+
+    // Update Chart & Table
+    updateChartData([...result].reverse());
     
-    // Update Grafik dengan data hasil filter (Harus dibalik biar urut waktu)
-    updateChartData([...chartFiltered].reverse(), true); // true = mode filter
+    // Reset pagination tabel ke halaman 1
+    currentPage = 1; 
+    renderTable();
 });
 
-// Event Listener Tombol Reset
+// Event Listener: Reset
 document.getElementById('reset-date-btn').addEventListener('click', () => {
     document.getElementById('start-date').value = "";
     document.getElementById('end-date').value = "";
+    document.getElementById('chart-limit').value = "50"; // Balik ke default 50
     
-    // Kembalikan ke tampilan default (50 data terakhir)
+    // Reset data ke kondisi awal
+    filteredData = allData;
+    
     updateChartData([...allData].reverse());
+    currentPage = 1;
+    renderTable();
 });
 
 
 // ==========================================
-// 3. FETCH DATA (DARI DATABASE)
+// 3. FETCH DATA
 // ==========================================
 async function loadHistoryData() {
     const tbody = document.getElementById('history-table-body');
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">⏳ Memuat data dari database...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">⏳ Memuat data...</td></tr>';
 
     try {
         const response = await fetch(CONFIG.api_history);
@@ -91,40 +107,43 @@ async function loadHistoryData() {
         console.log(`✅ ${data.length} data loaded.`);
 
         allData = data; 
-        filteredData = data;
+        filteredData = data; 
 
-        // Update Statistik
         calculateStats(data);
-
-        // Update Grafik Default (Balik urutan biar kronologis)
+        
+        // Update Chart Default (Balik urutan)
         updateChartData([...data].reverse());
-
-        // Render Tabel
+        
         renderTable();
 
     } catch (err) {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding: 20px;">❌ Gagal memuat data. Cek koneksi backend.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">❌ Gagal memuat data.</td></tr>';
     }
 }
 
 // ==========================================
-// 4. LOGIKA CHART & UPDATE
+// 4. UPDATE CHART DENGAN LIMIT
 // ==========================================
-function updateChartData(data, isFiltered = false) {
-    let chartData = [];
+function updateChartData(dataArray) {
+    // 1. Ambil nilai limit dari dropdown HTML
+    const limitVal = parseInt(document.getElementById('chart-limit').value);
+    
+    let displayData = [];
 
-    if (isFiltered) {
-        // Jika mode filter, TAMPILKAN SEMUA data yang ditemukan
-        chartData = data;
+    // 2. Potong data sesuai limit
+    if (limitVal > 0) {
+        // Ambil X data terakhir (dari array yang sudah urut Lama -> Baru)
+        displayData = dataArray.slice(-limitVal);
     } else {
-        // Jika mode default, batasi 50-100 data terakhir saja biar grafik tidak berat
-        chartData = data.slice(-100); 
+        // Jika 0 (Show All), tampilkan semua
+        displayData = dataArray;
     }
     
-    trendChart.data.labels = chartData.map(d => new Date(d.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
-    trendChart.data.datasets[0].data = chartData.map(d => d.temp);
-    trendChart.data.datasets[1].data = chartData.map(d => d.hum);
+    // 3. Masukkan ke Chart
+    trendChart.data.labels = displayData.map(d => new Date(d.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
+    trendChart.data.datasets[0].data = displayData.map(d => d.temp);
+    trendChart.data.datasets[1].data = displayData.map(d => d.hum);
     
     trendChart.update();
 }
@@ -134,8 +153,8 @@ function calculateStats(data) {
     let totalTemp = 0, totalHum = 0, totalAir = 0;
     let count = 0;
     data.forEach(d => {
-        if(d.temp) { totalTemp += parseFloat(d.temp); }
-        if(d.hum) { totalHum += parseFloat(d.hum); }
+        if(d.temp) totalTemp += parseFloat(d.temp);
+        if(d.hum) totalHum += parseFloat(d.hum);
         let air = d.air_clean_perc || d.air_clean || 0;
         totalAir += parseInt(air);
         count++;
@@ -149,7 +168,7 @@ function calculateStats(data) {
 }
 
 // ==========================================
-// 5. LOGIKA TABEL & PAGINATION
+// 5. TABEL & PAGINATION (Sama seperti sebelumnya)
 // ==========================================
 function renderTable() {
     const tbody = document.getElementById('history-table-body');
@@ -157,7 +176,7 @@ function renderTable() {
 
     const totalPages = Math.ceil(filteredData.length / rowsPerPage);
     if (totalPages === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Tidak ada data ditemukan.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Tidak ada data.</td></tr>';
         return;
     }
 
@@ -195,13 +214,8 @@ function renderTable() {
     document.getElementById('next-btn').disabled = (currentPage === totalPages);
 }
 
-document.getElementById('prev-btn').addEventListener('click', () => {
-    if (currentPage > 1) { currentPage--; renderTable(); }
-});
-document.getElementById('next-btn').addEventListener('click', () => {
-    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-    if (currentPage < totalPages) { currentPage++; renderTable(); }
-});
+document.getElementById('prev-btn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderTable(); } });
+document.getElementById('next-btn').addEventListener('click', () => { const totalPages = Math.ceil(filteredData.length / rowsPerPage); if (currentPage < totalPages) { currentPage++; renderTable(); } });
 
 document.getElementById('search-box').addEventListener('input', (e) => {
     const keyword = e.target.value.toLowerCase();
@@ -214,27 +228,18 @@ document.getElementById('search-box').addEventListener('input', (e) => {
     renderTable();
 });
 
-// ==========================================
-// 6. EXPORT CSV
-// ==========================================
 document.getElementById('export-data').addEventListener('click', () => {
-    if (allData.length === 0) { alert("No data to export!"); return; }
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Timestamp,RTC_Time,Temp,Hum,Pres,Lux,Air\n"; 
-    allData.forEach(row => {
-        const rtc = row.rtc_time || "";
-        const air = row.air_clean_perc || row.air_clean || "";
-        const line = `${row.timestamp},${rtc},${row.temp},${row.hum},${row.pres},${row.lux},${air}`;
-        csvContent += line + "\n";
+    if (allData.length === 0) { alert("No data!"); return; }
+    let csv = "Timestamp,RTC,Temp,Hum,Pres,Lux,Air\n";
+    allData.forEach(r => {
+        csv += `${r.timestamp},${r.rtc_time},${r.temp},${r.hum},${r.pres},${r.lux},${r.air_clean_perc}\n`;
     });
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "weathertech_data.csv");
+    link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+    link.download = "history.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 });
 
-// Jalankan
 loadHistoryData();

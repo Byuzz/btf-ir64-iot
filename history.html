@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WeatherTech - Historical Data</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
@@ -11,7 +12,10 @@
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <h2>🌤️ WeatherTech</h2>
+        <h2>
+            <img src="images/favicon.png" alt="Logo" class="brand-logo"> 
+            WeatherTech
+        </h2>
         </div>
         <div class="nav-links">
             <a href="index.html" class="nav-link">🏠 Overview</a>
@@ -54,16 +58,27 @@
     </div>
 
     <div class="sensor-card" style="margin-bottom: 20px;">
-        <div class="sensor-header" style="flex-wrap: wrap; gap: 10px;">
+        <div class="sensor-header" style="flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
             <h3>📊 Trend Analysis</h3>
             
-            <div class="chart-filter" style="display: flex; gap: 10px; align-items: center;">
-                <input type="date" id="start-date" class="form-control" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
-                <span style="color:#666">-</span>
-                <input type="date" id="end-date" class="form-control" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+            <div class="chart-filter" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 
-                <button id="filter-date-btn" class="btn-primary" style="padding: 5px 15px; font-size: 0.9rem;">Filter</button>
-                <button id="reset-date-btn" class="btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">Reset</button>
+                <select id="chart-limit" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px; background: white;">
+                    <option value="10">Last 10 Data</option>
+                    <option value="25">Last 25 Data</option>
+                    <option value="50" selected>Last 50 Data</option>
+                    <option value="100">Last 100 Data</option>
+                    <option value="0">Show All</option>
+                </select>
+
+                <span style="color:#ccc">|</span>
+
+                <input type="date" id="start-date" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+                <span style="color:#666">-</span>
+                <input type="date" id="end-date" style="padding: 5px; border: 1px solid #ddd; border-radius: 5px;">
+                
+                <button id="filter-date-btn" class="btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Filter</button>
+                <button id="reset-date-btn" class="btn-secondary" style="padding: 5px 15px; font-size: 0.8rem;">Reset</button>
             </div>
         </div>
         
@@ -71,7 +86,6 @@
             <canvas id="sensor-trends-chart"></canvas>
         </div>
     </div>
-
     <div class="sensor-card">
         <div class="sensor-header" style="margin-bottom: 15px;">
             <h3>📋 Detailed Data Logs</h3>

@@ -11,5 +11,8 @@ const CONFIG = {
     topic_gateway: "/weathertech/gateway_system",
     
     // API Database (Ganti dengan URL Domain VPS Anda)
-    api_history: "https://domain-anda.com/api/history" 
+    api_history: "https://domain-anda.com/api/history",
+    api_latest_sensor: "https://domain-anda.com/api/latest/sensor",
+    api_latest_sensor_system: "https://domain-anda.comh/api/latest/sensor_system",
+    api_latest_gateway_system: "https://domain-anda.com/api/latest/gateway_system"
 };
