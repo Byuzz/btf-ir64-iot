@@ -1747,3 +1747,324 @@ tr:hover {
     width: auto;
     object-fit: contain;
 }
+
+/* ===== MOBILE-FIRST BASE STYLES ===== */
+
+/* Base styles yang bekerja untuk semua device */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navigation base */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Content layout base */
+.content-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* ===== MOBILE BREAKPOINT (768px ke bawah) ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    /* Navigation mobile */
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .nav-links {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .nav-link {
+        text-align: center;
+        padding: 0.8rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Page header mobile */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    /* Content layout mobile */
+    .content-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .sensor-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .sensor-card.large {
+        grid-column: span 1;
+    }
+    
+    /* GPS layout mobile */
+    .gps-content {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Card adjustments mobile */
+    .card {
+        padding: 1.2rem;
+    }
+    
+    /* Architecture flow mobile */
+    .architecture-flow {
+        gap: 1rem;
+    }
+    
+    .flow-step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-icon {
+        align-self: center;
+    }
+}
+
+/* ===== TABLET BREAKPOINT (769px - 1024px) ===== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .sensor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===== DESKTOP BREAKPOINT (1025px ke atas) ===== */
+@media (min-width: 1025px) {
+    /* Tampilan desktop optimal - tidak perlu perubahan karena base style sudah bagus */
+    .sensor-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .content-row {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* ===== EXTRA SMALL MOBILE (480px ke bawah) ===== */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .nav-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .sensor-value {
+        font-size: 1.3rem;
+    }
+}
+
+/* ===== FIX UNTUK ELEMEN SPESIFIK ===== */
+
+/* Navigation brand consistency */
+.nav-brand {
+    background-color: white;
+    padding: 5px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+
+/* Architecture flow - konsisten di semua device */
+.architecture-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+/* Sensor cards - responsive tapi konsisten */
+.sensor-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s ease;
+}
+
+/* GPS page layout */
+.gps-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .gps-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* History page table */
+.table-container {
+    overflow-x: auto;
+}
+
+/* Team page specific */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-member {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Transceiver performance */
+.content-row[style*="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .content-row[style*="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))"] {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Gateway specifications */
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+/* ===== TOUCH FRIENDLY FOR MOBILE ===== */
+@media (max-width: 768px) {
+    .nav-link, .btn-primary, .btn-secondary {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    input, select {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}
+
+/* ===== IMPROVED READABILITY ===== */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.4rem; }
+    h3 { font-size: 1.2rem; }
+}
+
+/* ===== HORIZONTAL SCROLL PREVENTION ===== */
+.container, .card, .sensor-card {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Chart responsiveness */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+    
+    .sensor-chart {
+        height: 100px;
+    }
+}
