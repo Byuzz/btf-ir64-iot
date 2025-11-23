@@ -58,8 +58,6 @@ if (trendCanvas) {
 // ==========================================
 
 async function loadAndRenderData() {
-    console.log("🔄 Polling data ke: " + CONFIG.api_latest_sensor); // Debugging Log
-
     try {
         const response = await fetch(CONFIG.api_latest_sensor); 
         
@@ -69,17 +67,16 @@ async function loadAndRenderData() {
         }
 
         const dataArray = await response.json();
-        console.log("📦 Data Diterima:", dataArray); // Debugging Log - Lihat isinya di Console
 
         if (!dataArray || dataArray.length === 0) {
-            console.warn("⚠️ Database Kosong (Array []). Pastikan alat mengirim data atau isi dummy data.");
+            console.warn("⚠️ Database Kosong.");
             return;
         }
 
         // Data terbaru ada di index 0 (karena DESC di SQL)
         const latestData = dataArray[0];
         
-        // 1. Update Angka
+        // 1. Update Angka & Status Offline
         updateDashboardUI(latestData);
 
         // 2. Update Chart (Balik urutan biar kronologis Kiri -> Kanan)
@@ -124,16 +121,42 @@ function updateDashboardUI(data) {
     const setText = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.innerText = val;
-        else console.warn(`⚠️ Element ID '${id}' tidak ditemukan di HTML.`);
     };
 
-    // Pastikan data tidak null sebelum di-parse
+    // --- FITUR DETEKSI OFFLINE ---
+    const dataTime = new Date(data.timestamp).getTime(); // Waktu data server
+    const nowTime = new Date().getTime();                // Waktu laptop sekarang
+    const diffSeconds = (nowTime - dataTime) / 1000;     // Selisih detik
+
+    const lastUpElement = document.getElementById('last-update');
+    const gridElement = document.querySelector('.sensor-grid'); // Ambil container grid
+
+    // Jika data lebih tua dari 60 detik (1 menit)
+    if (diffSeconds > 60) {
+        if(lastUpElement) {
+            // Tampilkan pesan merah
+            lastUpElement.innerHTML = `<span style="color: red; font-weight: bold;">⚠️ DEVICE OFFLINE</span> <small>(Last: ${new Date(data.timestamp).toLocaleTimeString()})</small>`;
+        }
+        // Efek visual: Redupkan kartu sensor biar kelihatan mati
+        if (gridElement) gridElement.style.opacity = "0.6";
+    } else {
+        // Jika Online (< 60 detik)
+        const now = new Date().toLocaleTimeString();
+        if(lastUpElement) {
+            lastUpElement.innerText = "Updated: " + now;
+            lastUpElement.style.color = ""; // Reset warna
+        }
+        if (gridElement) gridElement.style.opacity = "1"; // Kembalikan normal
+    }
+    // ------------------------------
+
+    // 1. Update Angka Sensor
     if (data.lux != null) setText('lux-value', parseFloat(data.lux).toFixed(0) + " lux");
     if (data.temp != null) setText('temp-value', parseFloat(data.temp).toFixed(1) + " °C");
     if (data.hum != null) setText('hum-value', parseFloat(data.hum).toFixed(1) + " %");
     if (data.pres != null) setText('pres-value', parseFloat(data.pres).toFixed(1) + " hPa");
 
-    // Kualitas Udara
+    // 2. Kualitas Udara
     const air = (data.air_clean_perc !== undefined) ? data.air_clean_perc : data.air_clean;
     if (air != null) {
         setText('air-value', air + " %");
@@ -142,7 +165,7 @@ function updateDashboardUI(data) {
         
         if(bar) bar.style.width = air + "%";
         if(badge) {
-            if(air > 70) { // Logika: >70 = Bersih, <70 = Kurang
+            if(air > 70) { 
                 bar.style.background = "#4CAF50"; badge.innerText = "Bersih"; badge.style.background = "#d1e7dd"; badge.style.color = "#0f5132";
             } else {
                 bar.style.background = "#FFC107"; badge.innerText = "Sedang"; badge.style.background = "#fff3cd"; badge.style.color = "#856404";
@@ -150,6 +173,7 @@ function updateDashboardUI(data) {
         }
     }
 
+    // 3. Info Sistem
     if (data.rtc_time) setText('rtc-time', data.rtc_time);
     if (data.eeprom_count) setText('eeprom-count', "#" + data.eeprom_count);
     
